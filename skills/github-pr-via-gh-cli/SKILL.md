@@ -73,6 +73,23 @@ gh pr create --repo chen3feng/cn-doc-style-guide \
 
 ## Pitfalls
 
+- **Anti-pattern — never do this:**
+
+  ```bash
+  gh pr create --body "$(cat <<'EOF'
+  … multi-line body with ``` fences, $(…), backslashes …
+  EOF
+  )"
+  ```
+
+  This triple-nests double quotes, command substitution, and a
+  heredoc. In zsh (the default agent shell on macOS) any backtick
+  fence or `$(…)` inside the body will unbalance the parser and the
+  command hangs at `cmdand dquote>` / `cmdand quote>` — the agent
+  sees "command interrupted" and the PR is never filed. Always
+  write the body to a file via the editor tool and pass
+  `--body-file <path>`. See
+  [shell-heredoc-and-multiline-strings](../shell-heredoc-and-multiline-strings/SKILL.md).
 - `--title` with backticks or `$` through the shell is still fragile;
   prefer `--body-file` *and* keep the title short enough to put in a
   single-quoted string.
