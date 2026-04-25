@@ -10,7 +10,8 @@ tags: [markdown, regex, tooling]
 
 You're writing (or reviewing) a regex-based fixer for Markdown —
 spacing rules, typography, terminology normalization. Applies to any
-lint-and-fix tool, including the `cn-doc-style-guide/tools` family.
+lint-and-fix tool, including the `cndocstyle` package shipped with
+[cn-doc-style-guide](https://github.com/chen3feng/cn-doc-style-guide).
 
 ## Problem
 

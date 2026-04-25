@@ -1,6 +1,6 @@
 ---
 name: chinese-markdown-style
-description: House style for Chinese Markdown docs, and how to enforce it with cn-doc-style-guide/tools.
+description: House style for Chinese Markdown docs, and how to enforce it with the cndocstyle package from cn-doc-style-guide.
 tags: [markdown, chinese, style, i18n]
 ---
 
@@ -29,21 +29,33 @@ These accumulate quietly and make diffs noisy later.
 ## Solution
 
 Follow [chen3feng/cn-doc-style-guide](https://github.com/chen3feng/cn-doc-style-guide)
-and lean on its tooling:
+and lean on its tooling. The checker / previewer / formatter now ship as a
+stdlib-only Python package `cndocstyle` (src-layout under `src/`), so invoke
+them with `python3 -m cndocstyle.<module>`:
 
 ```bash
 # 1. Clone the guide as a sibling of your doc repo
 git clone https://github.com/chen3feng/cn-doc-style-guide.git
 
-# 2. Check — reports every violation, exits non-zero if any
-python3 ../cn-doc-style-guide/tools/check.py path/to/docs
+# 2. Make the package importable (src-layout). Pick ONE:
+export PYTHONPATH=../cn-doc-style-guide/src      # for this shell, or
+cd ../cn-doc-style-guide && pip install -e .     # editable install
 
-# 3. Preview what an auto-fix would change (dry-run diff)
-python3 ../cn-doc-style-guide/tools/preview.py path/to/docs
+# 3. Check — reports every violation, exits non-zero if any
+python3 -m cndocstyle.check path/to/docs
 
-# 4. Apply the safe subset of fixes
-python3 ../cn-doc-style-guide/tools/format.py --apply path/to/docs
+# 4. Preview what an auto-fix would change (dry-run diff)
+python3 -m cndocstyle.preview path/to/docs
+
+# 5. Dry-run the formatter (default) — lists files that would change
+python3 -m cndocstyle.formatter path/to/docs
+
+# 6. Apply the safe subset of fixes
+python3 -m cndocstyle.formatter --apply path/to/docs
 ```
+
+> The old `tools/check.py` / `tools/preview.py` / `tools/format.py` scripts
+> have been removed — use the module form above.
 
 Core rules you should apply even without the tool:
 
