@@ -76,9 +76,27 @@ gh pr create --repo chen3feng/cn-doc-style-guide \
 - `--title` with backticks or `$` through the shell is still fragile;
   prefer `--body-file` *and* keep the title short enough to put in a
   single-quoted string.
+- **`--body "…\n…"` does NOT give you line breaks.** `gh` takes the
+  value verbatim; `\n` stays as a two-character literal and the PR
+  body on GitHub will show `\n` in the middle of sentences. Always
+  use `--body-file <path>` for anything longer than one line (see
+  [shell-heredoc-and-multiline-strings](../shell-heredoc-and-multiline-strings/SKILL.md)).
+- **Very long `gh pr create` invocations get backgrounded** by some
+  agent shells — the command appears to "hang" and the PR URL never
+  comes back. Keep the command short (use `--body-file` instead of a
+  giant inline `--body`), and verify with
+  `gh pr list --repo <owner>/<repo> --state open` afterwards.
+- If you already created the PR and the body is malformed (e.g.
+  literal `\n` showing up), fix it without a new PR:
+
+  ```bash
+  gh pr edit <N> --repo <owner>/<repo> --body-file pr_body.md
+  ```
+
 - If `gh pr create` complains about "no commits between base and head",
   you forgot to push the branch first, or you branched off the wrong
-  base.
+  base — see
+  [rebase-on-fresh-base-after-merge](../rebase-on-fresh-base-after-merge/SKILL.md).
 - If the target repo has branch protection or required checks, the
   command still succeeds — the PR is created but will sit in a
   pending state. Mention this to the user if relevant.
@@ -87,3 +105,4 @@ gh pr create --repo chen3feng/cn-doc-style-guide \
 
 - [git-commit-author-identity](../git-commit-author-identity/SKILL.md)
 - [shell-heredoc-and-multiline-strings](../shell-heredoc-and-multiline-strings/SKILL.md)
+- [rebase-on-fresh-base-after-merge](../rebase-on-fresh-base-after-merge/SKILL.md)
