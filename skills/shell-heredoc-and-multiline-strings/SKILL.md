@@ -20,6 +20,14 @@ whitespace/newline mangling. Observed failures:
 - Heredocs that silently truncate at the first embedded `'` or `` ` ``.
 - `$(cat <<'EOF' … EOF)` producing a stray `cmdsubst heredoc>` prompt
   the agent never escapes, leaving a process wedged in the background.
+- In zsh, wrapping a heredoc inside a double-quoted command-substitution —
+  `gh pr create --body "$(cat <<'EOF' … EOF)"` — hangs at
+  `cmdand dquote>` / `cmdand quote>` prompts as soon as the heredoc body
+  contains triple-backtick fences, embedded `$(…)`, or backslashes.
+  zsh's parser can no longer tell whether quotes are balanced and waits
+  forever for input. Common symptom: the `terminal` tool reports
+  "command was running, but the user actively interrupted" with a
+  transcript full of `cmdand dquote>` lines.
 - Quoted multi-line `-m` strings being split at newlines, so only the
   first line becomes the commit title and the rest is interpreted as
   extra git arguments — sometimes parsed as `-c` config keys (see
