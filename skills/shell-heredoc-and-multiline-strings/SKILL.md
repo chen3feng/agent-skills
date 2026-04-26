@@ -53,22 +53,35 @@ single multi-line value anywhere in argv can wedge the shell.
 **General rule: write the string to a file first, then point the
 tool at the file.** The file can be produced two ways, both reliable:
 
-### Option A — editor tool writes to a temp path
+### Option A — editor tool writes to a repo-local path
 
 Preferred when the content is long or contains heavy markdown.
-Use the agent's `edit_file` / `write_file` targeting `mktemp`'s
-output path (system temp, not the repo):
+
+**Critical constraint**: many agent editor tools (e.g. Cursor's
+`edit_file`, `write_file`) refuse to write outside the current
+workspace — system-temp paths like `/tmp/foo.txt` return a
+"path not in workspace" error. **Do not target `mktemp`'s output
+with an editor tool.** Use a repo-local path instead (Option C
+below if `.agent/scratchpad/` exists, otherwise create one or fall
+back to Option B / pure `printf`).
 
 ```bash
-MSG=$(mktemp -t commit_msg.XXXXXX.txt)
+# With .agent/scratchpad/ convention (recommended):
+MSG=.agent/scratchpad/commitmsg.$$.txt
 # Then use the agent's editor tool to write to "$MSG".
-git commit -F "$MSG" && /bin/rm -f "$MSG"
+git commit -F "$MSG"
+# (No rm — .agent/scratchpad/ is gitignored, sweep occasionally.)
 ```
 
-(Why `/bin/rm` and not `rm`? See the *Alias-shadowed commands*
-pitfall below — in short, many users alias `rm` to a
-trash-can wrapper, and the absolute path guarantees the real
-binary runs.)
+If the repo has no `.agent/` layout and you still need editor-tool
+rich content, either introduce the layout first (one commit to add
+`.agent/scratchpad/.gitkeep` + gitignore entry) or use Option B
+(`printf` to `mktemp`, no editor needed).
+
+(Why `/bin/rm` and not `rm` when cleanup *is* needed? See the
+*Alias-shadowed commands* pitfall below — in short, many users
+alias `rm` to a trash-can wrapper, and the absolute path guarantees
+the real binary runs.)
 
 ### Option B — `printf '%s\n'` line-by-line
 
@@ -131,35 +144,66 @@ it's gitignored and stays out of commits). This is a deliberate
 choice: leaking a few kilobytes of local drafts is cheaper than a
 human-confirmation round-trip on every commit.
 
-Fall back to Option A / B when the repo does **not** have an
-`.agent/` layout, or when the content is sensitive (auth tokens,
-user data) — system temp is still preferable there because it gets
-cleared by the OS.
+Fall back to system temp (`mktemp -t ...`) with **pure-shell
+production** (`printf '%s\n' …`, Option B) when the repo does
+**not** have an `.agent/` layout, or when the content is sensitive
+(auth tokens, user data) — system temp is preferable there because
+it gets cleared by the OS. Remember: agent editor tools generally
+refuse system-temp paths (see Option A), so editor-tool authoring
+implies a repo-local target.
 
 ### Commit message
 
+Commit messages follow the same location logic as PR bodies.
+Match location to writer:
+
 ```bash
-# 1. Write the message to a file in the system temp dir
-#    (use editor tool for rich content, or printf '%s\n' … for short msgs).
-MSG=$(mktemp -t commit_msg.XXXXXX.txt)
+# Preferred: repo-local scratchpad (editor tool or printf both work).
+MSG=.agent/scratchpad/commitmsg.$$.txt
 #    … populate "$MSG" via editor tool or printf …
-
-# 2. Reference it by path
 git commit -F "$MSG"
+# No rm needed — .agent/scratchpad/ is gitignored.
+```
 
-# 3. Clean up immediately — use /bin/rm to bypass shell aliases
-/bin/rm -f "$MSG"
+No `.agent/` layout? Use `mktemp` with **pure-shell** content only
+(editor tool will reject the system-temp path):
+
+```bash
+MSG=$(mktemp -t commit_msg.XXXXXX.txt)
+printf '%s\n' 'Subject' '' 'Body paragraph.' > "$MSG"
+git commit -F "$MSG"
+/bin/rm -f "$MSG"   # /bin/rm bypasses the common `rm=trash` alias
 ```
 
 ### PR body
 
+PR bodies follow the same location logic as commit messages:
+
+```bash
+# Preferred: repo-local scratchpad (editor tool can write here).
+BODY=.agent/scratchpad/pr_body.$$.md
+#   agent edit tool -> "$BODY"
+gh pr create --title "…" --body-file "$BODY"
+# No rm needed — .agent/scratchpad/ is gitignored.
+```
+
+If the repo has no `.agent/` layout **and** the body is short
+enough to express as discrete lines, stay in pure shell:
+
 ```bash
 BODY=$(mktemp -t pr_body.XXXXXX.md)
-#   agent edit tool -> "$BODY"
-
+printf '%s\n' \
+  'Summary line.' \
+  '' \
+  '- bullet one' \
+  '- bullet two' \
+  > "$BODY"
 gh pr create --title "…" --body-file "$BODY"
 /bin/rm -f "$BODY"
 ```
+
+**Do not** combine `mktemp -t …` with an agent editor tool — the
+editor will reject the out-of-workspace path. See Option A above.
 
 ### Any other long string
 
@@ -197,14 +241,21 @@ git commit -F "$MSG" && /bin/rm -f "$MSG"
 
 ## Pitfalls
 
-- **Choose the right temp location per repo.** In repos that adopt
-  the [agent-work-artifacts-layout](../agent-work-artifacts-layout/SKILL.md)
-  convention, prefer `.agent/scratchpad/` (Option C) — it avoids
-  `mktemp` + trailing `rm`, which together trip agent-terminal
-  confirmation prompts. In repos without that convention, use system
-  temp via `mktemp -t ...` (Option A / B). Never write temp files to
-  the repo root or a tracked path — a stray `git add .` will commit
-  them.
+- **Choose the right temp location per repo, and match it to how
+  the content is produced.** Two dimensions:
+  (1) *Which filesystem* — repo-local `.agent/scratchpad/` (when the
+  [agent-work-artifacts-layout](../agent-work-artifacts-layout/SKILL.md)
+  convention is in place) avoids `mktemp` + trailing `rm`, which
+  together trip agent-terminal confirmation prompts; system temp
+  via `mktemp -t ...` is the fallback when there's no `.agent/`
+  layout.
+  (2) *Which writer* — pure shell (`printf '%s\n' …`) can target
+  either location, but **agent editor tools typically refuse paths
+  outside the workspace**, so `mktemp -t …` + `edit_file` is a
+  broken combination. If you need the editor tool for rich content,
+  the target must be repo-local (`.agent/scratchpad/...`).
+  Never write temp files to the repo root or a tracked path — a
+  stray `git add .` will commit them.
 - **Chained `&& rm -f "$MSG"` may trigger a human-confirmation
   prompt.** Many agent terminals rank multi-command lines containing
   `rm` as destructive and require explicit approval each time. If
