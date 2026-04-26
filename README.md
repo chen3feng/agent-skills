@@ -29,6 +29,7 @@ General engineering workflow:
 - [shell-heredoc-and-multiline-strings](skills/shell-heredoc-and-multiline-strings/SKILL.md) — passing multi-line commit messages and long strings through an agent terminal without getting eaten by the shell.
 - [github-pr-via-gh-cli](skills/github-pr-via-gh-cli/SKILL.md) — standard "branch → push → `gh pr create`" recipe, including when fork vs. direct branch is appropriate.
 - [rebase-on-fresh-base-after-merge](skills/rebase-on-fresh-base-after-merge/SKILL.md) — after a PR lands, cut the next branch from a freshly-fetched `origin/<default>` instead of reusing the merged feature branch.
+- [git-rev-parse-multi-ref-short](skills/git-rev-parse-multi-ref-short/SKILL.md) — `git rev-parse --short ref1 ref2 ...` fails with "Needed a single revision"; use a `for` loop or drop `--short`.
 - [workspace-path-constraints](skills/workspace-path-constraints/SKILL.md) — which tools only accept indexed workspace paths, and how to fall back for sibling repos.
 - [python-code-audit-sweep](skills/python-code-audit-sweep/SKILL.md) — run a quick non-behavioral audit of a Python repo and split findings into bug / dead-code / style PRs.
 - [agent-work-artifacts-layout](skills/agent-work-artifacts-layout/SKILL.md) — where to put PR bodies, throwaway scripts, and audit reports so they don't pollute the repo or get lost.
