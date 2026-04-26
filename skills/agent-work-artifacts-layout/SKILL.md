@@ -104,6 +104,27 @@ vi pr_body.md
 gh pr create --body-file pr_body.md
 ```
 
+### Right way — commit message via repo-local scratchpad
+
+In an agent terminal, commit flows that chain `mktemp` + `git commit`
++ `rm` often trigger human-confirmation prompts on every commit.
+`.agent/scratchpad/` sidesteps this by removing both `mktemp` and
+the trailing `rm`:
+
+```bash
+MSG=.agent/scratchpad/commitmsg.$$.txt
+printf '%s\n' 'Subject line' '' 'Body paragraph.' > "$MSG"
+git commit -F "$MSG"
+# .agent/scratchpad/ is gitignored; sweep occasionally.
+```
+
+This applies to **commit messages**, not PR bodies — PR bodies
+should still use system temp (see previous example) because they
+are one-shot and benefit from OS-level cleanup.
+
+See [shell-heredoc-and-multiline-strings](../shell-heredoc-and-multiline-strings/SKILL.md)
+for when to choose each temp location.
+
 ### Right way — repo-scoped helper that others might reuse
 
 ```
@@ -168,9 +189,13 @@ Document this in a `.agent/tools/README.md` at repo setup time.
   otherwise the reopens have no effect. Always verify with
   `git check-ignore -v <path>` for both a tracked path and an
   ignored path before committing.
-- **Do not default to `.agent/scratchpad/` for PR bodies.** Once filed,
-  GitHub is the source of truth. Keep a draft only if the user
-  explicitly asked you to iterate on wording locally.
+- **Use `.agent/scratchpad/` for commit-message drafts, not PR bodies.**
+  Commit messages are produced many times per session and benefit
+  from a fixed local path (no `mktemp`, no `rm`, fewer agent-terminal
+  confirmation prompts). PR bodies are one-shot, often contain the
+  final version of release notes, and should stay in system temp so
+  the OS cleans them up — a lingering draft under `.agent/scratchpad/`
+  invites confusion about which version made it to GitHub.
 - **Do not rely on `.agent/scratchpad/`, `/artifacts/`, or
   `/context/` for anything needed on another machine** — they are
   gitignored. Only `.agent/tools/` survives cloning.
