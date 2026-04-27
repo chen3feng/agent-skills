@@ -54,6 +54,7 @@ General engineering workflow:
 - [workspace-path-constraints](skills/workspace-path-constraints/SKILL.md) — which tools only accept indexed workspace paths, and how to fall back for sibling repos.
 - [detect-tool-vendor-by-query](skills/detect-tool-vendor-by-query/SKILL.md) — identify a compiler / interpreter by running it (`--version`) and caching the answer, not by sniffing its filename — macOS `/usr/bin/gcc` is Apple Clang.
 - [python-code-audit-sweep](skills/python-code-audit-sweep/SKILL.md) — run a quick non-behavioral audit of a Python repo and split findings into bug / dead-code / style PRs.
+- [python-modernization-sweep](skills/python-modernization-sweep/SKILL.md) — plan a Python 3 modernization sweep (f-strings, `super()`, type hints) as a series of mechanical PRs, not one mega-PR.
 - [python-indent-aware-edits](skills/python-indent-aware-edits/SKILL.md) — over-indented suites are still legal Python; `compileall` won't catch a dropped `with` / `try` scope, so verify by actually calling the edited function.
 - [test-layout-evolution](skills/test-layout-evolution/SKILL.md) — when the existing `test/` dir is really integration, add unit tests in a parallel `tests/unit/` instead of mixing them; defer the merge.
 - [sidecar-smoke-suite-reveals-upstream-bugs](skills/sidecar-smoke-suite-reveals-upstream-bugs/SKILL.md) — a downstream sidecar smoke suite can expose upstream bugs unit tests miss; fix upstream first and close the coverage gap there, then land the sidecar suite with no knobs.
