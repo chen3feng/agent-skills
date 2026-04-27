@@ -37,6 +37,8 @@ General engineering workflow:
 - [test-layout-evolution](skills/test-layout-evolution/SKILL.md) — when the existing `test/` dir is really integration, add unit tests in a parallel `tests/unit/` instead of mixing them; defer the merge.
 - [agent-work-artifacts-layout](skills/agent-work-artifacts-layout/SKILL.md) — where to put PR bodies, throwaway scripts, and audit reports so they don't pollute the repo or get lost.
 - [repo-org-migration-url-cleanup](skills/repo-org-migration-url-cleanup/SKILL.md) — after a GitHub repo is transferred to a new owner/org, sweep stale URLs everywhere but preserve historical narrative.
+- [stop-chasing-the-optimizer-reduce-instead](skills/stop-chasing-the-optimizer-reduce-instead/SKILL.md) — after two failed anti-optimization patches, stop adding `volatile` / `noinline` and reduce the repro instead.
+- [per-function-optimize-attribute-abi-mismatch](skills/per-function-optimize-attribute-abi-mismatch/SKILL.md) — `__attribute__((optimize("O0")))` on one function inside an `-O2` TU on GCC silently breaks the ABI and crashes on first call.
 
 Documentation work:
 
