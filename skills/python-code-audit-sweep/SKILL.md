@@ -143,6 +143,7 @@ Three PRs, merged in order, each with a self-contained changelog.
 
 ## See also
 
+- [python-modernization-sweep](../python-modernization-sweep/SKILL.md) — the complementary sweep that introduces Py3 features (f-strings, `super()`, type hints) as mechanical PRs; run it before or after this audit, but don't mix them into the same PRs.
 - [github-pr-via-gh-cli](../github-pr-via-gh-cli/SKILL.md)
 - [rebase-on-fresh-base-after-merge](../rebase-on-fresh-base-after-merge/SKILL.md)
 - [doc-code-consistency-check](../doc-code-consistency-check/SKILL.md)
