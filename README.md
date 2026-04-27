@@ -56,6 +56,7 @@ General engineering workflow:
 - [python-code-audit-sweep](skills/python-code-audit-sweep/SKILL.md) — run a quick non-behavioral audit of a Python repo and split findings into bug / dead-code / style PRs.
 - [python-indent-aware-edits](skills/python-indent-aware-edits/SKILL.md) — over-indented suites are still legal Python; `compileall` won't catch a dropped `with` / `try` scope, so verify by actually calling the edited function.
 - [test-layout-evolution](skills/test-layout-evolution/SKILL.md) — when the existing `test/` dir is really integration, add unit tests in a parallel `tests/unit/` instead of mixing them; defer the merge.
+- [sidecar-smoke-suite-reveals-upstream-bugs](skills/sidecar-smoke-suite-reveals-upstream-bugs/SKILL.md) — a downstream sidecar smoke suite can expose upstream bugs unit tests miss; fix upstream first and close the coverage gap there, then land the sidecar suite with no knobs.
 - [agent-work-artifacts-layout](skills/agent-work-artifacts-layout/SKILL.md) — where to put PR bodies, throwaway scripts, and audit reports so they don't pollute the repo or get lost.
 - [repo-org-migration-url-cleanup](skills/repo-org-migration-url-cleanup/SKILL.md) — after a GitHub repo is transferred to a new owner/org, sweep stale URLs everywhere but preserve historical narrative.
 - [stop-chasing-the-optimizer-reduce-instead](skills/stop-chasing-the-optimizer-reduce-instead/SKILL.md) — after two failed anti-optimization patches, stop adding `volatile` / `noinline` and reduce the repro instead.
