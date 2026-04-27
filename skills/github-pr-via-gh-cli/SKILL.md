@@ -117,6 +117,24 @@ gh pr create --repo chen3feng/cn-doc-style-guide \
 - If the target repo has branch protection or required checks, the
   command still succeeds — the PR is created but will sit in a
   pending state. Mention this to the user if relevant.
+- **`gh pr view <N> --json mergeable,mergeStateStatus` can return
+  `"UNKNOWN"` / `"UNKNOWN"` right after another PR lands on the same
+  base.** GitHub computes mergeability asynchronously; the value is
+  not populated instantly. If you need a decision (e.g. "does this
+  PR still merge cleanly after the one we just merged?"), wait a
+  few seconds and re-query:
+
+  ```bash
+  gh pr view <N> --json mergeable,mergeStateStatus
+  # → {"mergeable":"UNKNOWN","mergeStateStatus":"UNKNOWN"}
+  sleep 5
+  gh pr view <N> --json mergeable,mergeStateStatus
+  # → {"mergeable":"MERGEABLE","mergeStateStatus":"CLEAN"}
+  ```
+
+  Don't interpret a single `UNKNOWN` as "there's a conflict" — it
+  just means GitHub hasn't finished the background check yet. The
+  `gh pr checks` and the web UI exhibit the same delay.
 
 ## See also
 

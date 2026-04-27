@@ -103,9 +103,26 @@ git stash pop
 - If the PR was **squashed** on merge, your local feature branch's
   commits won't appear in `origin/master` by hash — that's expected,
   don't try to "rescue" them.
-- Delete the merged local branch once the new one is working:
-  `git branch -D <old-slug>` (the remote copy is usually auto-deleted
-  by GitHub on merge).
+- **Clean up the merged local branch — and use the `gone` signal to
+  know it's safe.** GitHub repos with *Automatically delete head
+  branches* enabled (the default for new repos, e.g.
+  `chen3feng/agent-skills`, `blade-build/blade-build`) delete the
+  remote branch on merge. After `git fetch --prune origin`, the local
+  side shows it as `gone`:
+
+  ```bash
+  $ git branch -vv
+  * master                           652f6e6 [origin/master] Merge …
+    skills/python-indent-aware-edits 9f7db46 [origin/skills/python-indent-aware-edits: gone] docs(skill): add …
+  ```
+
+  Prefer the **safe delete** `git branch -d <old-slug>`; it refuses
+  if the branch isn't fully merged into its upstream, which is the
+  correct behavior when the PR was rebased/fast-forwarded. Only fall
+  back to `git branch -D <old-slug>` when the PR was **squashed**
+  (commits exist in `origin/master` by content but not by hash, so
+  `-d` refuses). If `-d` refuses and the PR wasn't squashed, stop
+  and investigate — something is off.
 
 ## See also
 
