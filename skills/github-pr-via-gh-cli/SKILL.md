@@ -136,6 +136,40 @@ gh pr create --repo chen3feng/cn-doc-style-guide \
   just means GitHub hasn't finished the background check yet. The
   `gh pr checks` and the web UI exhibit the same delay.
 
+- **`gh run rerun --job <id>` wants the *display name* upstream, not
+  the YAML job key.** When you select a specific workflow job to
+  rerun (or view), `--job` takes the job's numeric `databaseId` and
+  that ID is resolved against the **display name** shown in the
+  GitHub Checks UI — which is the `name:` field from the workflow
+  YAML, not the `jobs.<key>` identifier above it. Pattern-matching
+  the YAML key will silently miss:
+
+  ```yaml
+  # .github/workflows/python-package.yml
+  jobs:
+    e2e-smoke:                        # ← YAML key
+      name: E2E smoke (blade-test)    # ← display name (what gh sees)
+  ```
+
+  ```bash
+  # WRONG — filters on the YAML key, returns empty list, rerun fails.
+  JOB_ID=$(gh run view <run> --json jobs \
+    | jq -r '.jobs[] | select(.name=="e2e-smoke") | .databaseId')
+  gh run rerun <run> --job "$JOB_ID"
+  # → IndexError / "Flags: ... -j, --job string ..."
+
+  # RIGHT — list jobs first, copy the actual display name.
+  gh run view <run> --json jobs \
+    | jq -r '.jobs[] | "\(.databaseId)  \(.name)  \(.conclusion)"'
+  # 73167567958  E2E smoke (blade-test)  success
+  gh run rerun <run> --job 73167567958
+  ```
+
+  The same applies to `gh run view <run> --log --job <id>` when you
+  want to grep a specific job's log. Always list `.jobs[].name`
+  first and copy the exact string; never assume it equals the YAML
+  key.
+
 ## See also
 
 - [git-commit-author-identity](../git-commit-author-identity/SKILL.md)
