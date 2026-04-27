@@ -1,0 +1,16 @@
+# Agent scratchpad. See skills/agent-work-artifacts-layout/SKILL.md.
+# Commit messages, PR bodies, and throwaway scripts live here and must
+# never be tracked — `git add -A` would otherwise sweep them in.
+.agent/
+
+# macOS finder noise.
+.DS_Store
+
+# Editor / IDE local state.
+.vscode/
+.idea/
+*.swp
+
+# Python byproducts (shouldn't appear in this repo, but cheap to block).
+__pycache__/
+*.pyc

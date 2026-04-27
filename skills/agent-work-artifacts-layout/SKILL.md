@@ -178,6 +178,23 @@ Document this in a `.agent/tools/README.md` at repo setup time.
 
 ## Pitfalls
 
+- **The convention is inert without an actual `.gitignore`.** Writing
+  this skill, or a `.agent/README.md`, or just telling the agent to
+  "put drafts in `.agent/scratchpad/`" does **not** make those files
+  ignored. Without a committed `.gitignore` entry they show up as
+  `??` in `git status`, and a single `git add -A` (easy to type when
+  rushing a commit) sweeps them into the tree. Verify on day one:
+
+  ```bash
+  git check-ignore -v .agent/scratchpad/anyfile.txt
+  # expect: .gitignore:<line>:.agent/    .agent/scratchpad/anyfile.txt
+  ```
+
+  If that command prints nothing, the convention is a lie and the
+  next `git add -A` will betray it. This skill's own repo shipped
+  without a `.gitignore` for its first nine PRs — nobody got bitten
+  only because every commit used explicit `git add <path>`. Don't
+  rely on that.
 - **`.agent/` is convention, not project API.** A tracked
   `.agent/README.md` explaining the layout is fine (similar in
   spirit to `.github/`'s own README), but nothing in the build,
