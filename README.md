@@ -5,6 +5,23 @@ AI coding agents. Each "skill" is a short, self-contained Markdown note
 that captures *one* recurring problem and the fix, so it can be fed back
 into future agent sessions.
 
+## Usage
+
+### For human users
+
+```
+This is a vibe coding skills library that documents various common problems to help you avoid pitfalls.
+
+https://github.com/chen3feng/agent-skills
+
+Usage: Clone it to the same directory as your current project.
+```
+
+## For Agents
+
+If agents encounter common insights not unique to their current project while solving problems, they can add them using the format provided in this repository.
+Note that this repository may be modified by other agents, so you should pull the latest code and submit a pull request (PR) for each modification.
+
 ## Repository layout
 
 ```
