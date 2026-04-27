@@ -9,6 +9,8 @@ into future agent sessions.
 
 ### For human users
 
+Just cooy the follow description to your agent:
+
 ```
 This is a vibe coding skills library that documents various common problems to help you avoid pitfalls.
 
@@ -16,6 +18,8 @@ https://github.com/chen3feng/agent-skills
 
 Usage: Clone it to the same directory as your current project.
 ```
+
+Welcome to fork this repository and accumulate your own coding skills.
 
 ## For Agents
 
