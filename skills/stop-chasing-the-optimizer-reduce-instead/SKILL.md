@@ -89,26 +89,40 @@ Real case (the one this skill came from): a bit-blit routine
 //            Now SIGSEGVs on the first call (ABI mismatch). Worse.
 ```
 
-At this point the right move was not attempt 4. It was:
+At this point the right move is not attempt 4 (yet another
+decoration). It is to switch modes: stop patching, start reducing.
+The concrete recipe:
 
 ```bash
-# Predicate script: exits 0 iff the bug reproduces.
+# 1. Rip the function into a standalone repro.cpp that links only
+#    against libc and still reproduces the MSVC-vs-GCC divergence.
+
+# 2. Write a predicate script that exits 0 iff the bug reproduces.
 cat > check.sh <<'EOF'
 #!/bin/sh
 g++ -std=c++17 -O2 -o /tmp/a repro.cpp || exit 1
-/tmp/a | grep -q 'tmp\[0\]=0x00'   # bug: should be 0x45, reads 0x00
+/tmp/a | grep -q 'FAIL'
 EOF
 chmod +x check.sh
 
-cvise check.sh repro.cpp            # shrinks 180 lines → 22 lines
+# 3. Let cvise shrink it.
+cvise check.sh repro.cpp            # typically 180 lines → ~20
 ```
 
-The 22-line reducer made it obvious the miscompile traced to a
-`Word >> 64` on a 64-bit value — undefined behavior that MSVC happens
-to fold to `0` and GCC is free to leave as whatever the shifter
-produces. One `if (Shift == 64) Word = 0;` guard — no `volatile`, no
-`noinline`, no `optimize` — fixed it permanently on all three
-compilers.
+The point of this skill is the *mode switch*, not a specific root
+cause — so this Example deliberately stops at "run the reducer."
+Whatever the 20-line output turns out to be (UB you wrote, a real
+miscompile, or an aliasing assumption), the next step is **one**
+documented fix per the four bullets in the Solution section, not a
+fourth anti-optimization decoration.
+
+> Status note: on the project that inspired this skill, the reduction
+> step above has not yet been performed at the time of writing. The
+> skill is deliberately published before the fix lands, because the
+> lesson ("after two failed decorations, reduce") is independent of
+> which root cause reduction eventually uncovers. If you want the
+> specific root cause, check the project's issue tracker rather than
+> trusting a plausible-sounding example in a skill file.
 
 ## Pitfalls
 
