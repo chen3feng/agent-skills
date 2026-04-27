@@ -32,6 +32,7 @@ General engineering workflow:
 - [git-rev-parse-multi-ref-short](skills/git-rev-parse-multi-ref-short/SKILL.md) — `git rev-parse --short ref1 ref2 ...` fails with "Needed a single revision"; use a `for` loop or drop `--short`.
 - [workspace-path-constraints](skills/workspace-path-constraints/SKILL.md) — which tools only accept indexed workspace paths, and how to fall back for sibling repos.
 - [python-code-audit-sweep](skills/python-code-audit-sweep/SKILL.md) — run a quick non-behavioral audit of a Python repo and split findings into bug / dead-code / style PRs.
+- [python-indent-aware-edits](skills/python-indent-aware-edits/SKILL.md) — over-indented suites are still legal Python; `compileall` won't catch a dropped `with` / `try` scope, so verify by actually calling the edited function.
 - [agent-work-artifacts-layout](skills/agent-work-artifacts-layout/SKILL.md) — where to put PR bodies, throwaway scripts, and audit reports so they don't pollute the repo or get lost.
 - [repo-org-migration-url-cleanup](skills/repo-org-migration-url-cleanup/SKILL.md) — after a GitHub repo is transferred to a new owner/org, sweep stale URLs everywhere but preserve historical narrative.
 
