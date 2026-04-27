@@ -31,8 +31,10 @@ General engineering workflow:
 - [rebase-on-fresh-base-after-merge](skills/rebase-on-fresh-base-after-merge/SKILL.md) — after a PR lands, cut the next branch from a freshly-fetched `origin/<default>` instead of reusing the merged feature branch.
 - [git-rev-parse-multi-ref-short](skills/git-rev-parse-multi-ref-short/SKILL.md) — `git rev-parse --short ref1 ref2 ...` fails with "Needed a single revision"; use a `for` loop or drop `--short`.
 - [workspace-path-constraints](skills/workspace-path-constraints/SKILL.md) — which tools only accept indexed workspace paths, and how to fall back for sibling repos.
+- [detect-tool-vendor-by-query](skills/detect-tool-vendor-by-query/SKILL.md) — identify a compiler / interpreter by running it (`--version`) and caching the answer, not by sniffing its filename — macOS `/usr/bin/gcc` is Apple Clang.
 - [python-code-audit-sweep](skills/python-code-audit-sweep/SKILL.md) — run a quick non-behavioral audit of a Python repo and split findings into bug / dead-code / style PRs.
 - [python-indent-aware-edits](skills/python-indent-aware-edits/SKILL.md) — over-indented suites are still legal Python; `compileall` won't catch a dropped `with` / `try` scope, so verify by actually calling the edited function.
+- [test-layout-evolution](skills/test-layout-evolution/SKILL.md) — when the existing `test/` dir is really integration, add unit tests in a parallel `tests/unit/` instead of mixing them; defer the merge.
 - [agent-work-artifacts-layout](skills/agent-work-artifacts-layout/SKILL.md) — where to put PR bodies, throwaway scripts, and audit reports so they don't pollute the repo or get lost.
 - [repo-org-migration-url-cleanup](skills/repo-org-migration-url-cleanup/SKILL.md) — after a GitHub repo is transferred to a new owner/org, sweep stale URLs everywhere but preserve historical narrative.
 
