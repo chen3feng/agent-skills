@@ -283,6 +283,38 @@ git commit -F "$MSG" && /bin/rm -f "$MSG"
   aliases in bash/zsh, but `/bin/rm` is the most portable and
   self-documenting choice. Applies to every `rm` example in this
   skill — they all use `/bin/rm` for this reason.
+- **zsh history expansion eats `!` in glob patterns like `.[!.]*`.**
+  The "delete dotfiles but not `.` / `..`" idiom `rm -rf .[!.]*` and
+  its cousin `rm -rf dir/* dir/.[!.]*` is standard in POSIX sh and
+  bash, but zsh with default `HIST_VERIFY` / history-expansion on
+  treats the `!` as a history-event trigger *before* globbing
+  happens. Symptoms in an agent terminal:
+
+  ```text
+  zsh: event not found: .]
+  ```
+
+  (and the `rm` never runs). Single-quoting the pattern does not
+  help because zsh performs history expansion even inside most
+  quoting contexts when the pattern is emitted by a previous tool.
+  Robust cures, in order of preference:
+
+  1. **`find` instead of glob**: `find <dir> -mindepth 1 -delete`
+     atomically removes everything inside `<dir>` (files + dotfiles)
+     without touching `<dir>` itself. No `!` needed, no shell
+     expansion to worry about.
+  2. Disable the feature for the one command: `setopt +o banghist`
+     (zsh) or prepend `set +H` (bash) — noisy and easy to forget
+     to turn back on.
+  3. Escape the `!` as `\!` — works but fragile because quoting
+     rules differ across wrappers in the agent-terminal → shell
+     chain.
+
+  Same caveat applies anywhere an agent emits a shell command
+  containing a literal `!` that is not meant as history expansion
+  (e.g. `grep '^!'`, `sed 's/!//'`). When in doubt, prefer a tool
+  that doesn't require `!` (e.g. `grep -v '^$'` or `find`-driven
+  pipelines) over elaborate escaping.
 - **Don't try to be clever with `$'…\n…'` or `echo -e`.** ANSI-C
   quoting and `echo -e` don't fix the root cause — the shell still
   sees a multi-line value eventually, and the same hang recurs.
