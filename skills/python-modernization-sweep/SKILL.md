@@ -176,6 +176,55 @@ Each type-hint PR should also:
 2. Turn on one more pyright / ruff rule from **warning** to
    **error** in the config file, so the net is strictly
    tightening.
+3. **Re-read every new pyright `error:` line before silencing
+   or widening the annotation.** Adding a signature narrows
+   the set of inputs pyright believes are legal, which is
+   precisely the moment a latent bug becomes visible — a
+   call site that always passed `None` where the body
+   expected a list, a caller that forwards a raw `str` into
+   a helper that iterates characters, etc. The first instinct
+   ("just widen the annotation to `Optional[...]`") is almost
+   always wrong: in practice 1–3 of those new errors per
+   module are real bugs that the old dynamic code masked. Fix
+   the call site, not the signature.
+
+   Concrete example (blade-build PR #1106): annotating
+   `Target.__init__(... src_exts: list[str], ...)` turned two
+   `src_exts=None` call sites in `java_targets.MavenJar` and
+   `package_target.PackageTarget` into pyright errors. Both
+   were latent bugs masked by a defensive `var_to_list()`
+   inside the body; correct fix was `src_exts=[]` at the call
+   site, not `list[str] | None` in the signature.
+
+### Phase 3a — Introducing a shared type-aliases module
+
+Most type-hint sweeps end up wanting a small shared module
+for repo-wide aliases (`PathLike`, `StrOrList`, `JsonValue`,
+etc.) so every rule-entry / helper signature doesn't re-spell
+the same `Union[str, list[str]]`.
+
+**Do not name this module `types.py`.** Python's stdlib owns
+the name; although absolute imports inside your package
+won't actually collide (`import types` resolves to stdlib,
+`from mypkg import types` resolves to yours), the cognitive
+cost to every future reader is high, and any call site that
+still does `from .types import ...` relative-imports fine
+today but is one refactor away from confusion. Name the
+module something unambiguous: `<pkgname>_types.py`,
+`type_aliases.py`, `_typing.py`, or the pandas-style
+`_typing.py` convention. This is a 30-second decision that
+saves every reviewer from a double-take.
+
+Before picking any name, grep for stdlib-overlap:
+
+```bash
+grep -rn '^import types\b\|^from types import' <src_dir>
+```
+
+If the hit count is >0, your chosen module name **must not**
+be `types.py`. If the hit count is 0 today, it is still
+likely to be >0 in some future PR, so the same rule applies.
+
 
 The final PR of the sweep flips the remaining pyright warnings
 to errors and promotes any remaining ruff rules from the
