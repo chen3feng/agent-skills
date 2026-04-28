@@ -223,6 +223,70 @@ Total estimated cost: 3 mechanical PRs (a few hours), then
 10–15 semantic PRs (one or two per day, for two weeks) instead
 of a single unmergeable "modernize everything" blob.
 
+## When f-strings show up (and when they don't)
+
+A reviewer reading the `pyupgrade --py310-plus` PR will almost
+always ask: "why did `'%s' % x` become `'{}'.format(x)` instead of
+`f'{x}'`? f-strings are nicer." The answer is that pyupgrade has
+**two independent rules** with very different safety guarantees:
+
+| Rule  | Rewrite                                  | Safety |
+|-------|------------------------------------------|--------|
+| UP031 | `'%s' % x` → `'{}'.format(x)`            | Always safe — same evaluation model. |
+| UP032 | `'{}'.format(x)` → `f'{x}'`              | Only safe under strict preconditions. |
+
+UP032 (the f-string promotion) is deliberately conservative and
+**skips** any of the following:
+
+1. **Repeated positional / named arguments.**
+   `'{0} {0}'.format(expensive())` → `f'{expensive()} {expensive()}'`
+   would evaluate `expensive()` twice. pyupgrade never introduces
+   extra evaluations, even if your CI happens to pass.
+2. **Backslashes inside the replacement field.** Python ≤3.11
+   disallows `\n`, `\\`, etc. inside f-string `{...}`.
+3. **Nested quotes that would collide.** `"{}".format(d["key"])`
+   becomes `f"{d["key"]}"`, which is a syntax error before 3.12.
+4. **`#` inside the expression.** f-string expressions cannot
+   contain `#` (the parser treats it as a comment).
+5. **Complex conversion/format specs with nested `{}`.**
+6. **Multi-line `.format(` calls.** The fixer bails rather than
+   try to rejoin lines safely.
+
+So pyupgrade's output looking "half-modernized" (`.format` instead
+of f-string) is **not a bug or a missing pass**; it is the tool
+being honest about the cases it can't prove safe mechanically.
+Don't hand-write a follow-up pass that rewrites every remaining
+`.format`.
+
+**Policy for this sweep:**
+
+1. **Phase 1 accepts `.format()` as a terminal state.** The PR
+   that runs `pyupgrade --py310-plus` stops where pyupgrade stops.
+   Don't second-guess it by hand.
+2. **Phase 1b (optional, cheap) picks up the safe subset.**
+   Add `UP032` to the ruff `--fix` select list if you want to
+   harvest the f-string rewrites that *are* safe (ruff and
+   pyupgrade implement UP032 with the same preconditions):
+   ```bash
+   ruff check <src_dir> --fix --select=UP,UP032,RUF005,SIM103,...
+   ```
+   This is free and reviewable, but will only catch the easy
+   `'{}'.format(single_name)` cases — in a real codebase that's
+   usually a single-digit count, not hundreds.
+3. **Phase 3 picks up the rest incidentally.** Each module's
+   type-hint PR naturally re-reads every line in the file; that's
+   the right moment to upgrade the remaining `.format` (and any
+   lingering `%`) to f-string **in the files that PR already
+   touches**. Zero extra cognitive cost, and the change is local
+   to a PR the reviewer is already reading carefully.
+4. **Do not open a standalone "repo-wide f-string sweep" PR.**
+   It would either (a) be mechanical-only and miss the unsafe
+   cases, or (b) touch unsafe cases and require line-by-line
+   review of hundreds of diffs — defeating the whole phase split.
+   Also: a giant f-string commit pollutes `git blame` for every
+   line of every touched string, making future archaeology
+   harder for zero behavioral benefit.
+
 ## Pitfalls
 
 - **Don't skip the census.** Picking tools before counting hits
