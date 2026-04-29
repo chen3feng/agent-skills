@@ -68,6 +68,7 @@ Documentation work:
 - [chinese-markdown-style](skills/chinese-markdown-style/SKILL.md) — the Chinese-doc style rules I follow, plus how to run the `cndocstyle` package from `cn-doc-style-guide` to enforce them.
 - [safe-markdown-auto-fix](skills/safe-markdown-auto-fix/SKILL.md) — how to auto-fix Markdown without corrupting code blocks, inline code, URLs, or HTML.
 - [doc-code-consistency-check](skills/doc-code-consistency-check/SKILL.md) — before editing a README, verify the actual code behavior; don't just "correct" the doc in isolation.
+- [url-space-after-brackets](skills/url-space-after-brackets/SKILL.md) — always add a space after URL brackets in Markdown to prevent 404 errors with special characters like Chinese text or asterisks.
 
 ## Adding a new skill
 
