@@ -50,6 +50,7 @@ General engineering workflow:
 - [shell-heredoc-and-multiline-strings](skills/shell-heredoc-and-multiline-strings/SKILL.md) — passing multi-line commit messages and long strings through an agent terminal without getting eaten by the shell.
 - [github-pr-via-gh-cli](skills/github-pr-via-gh-cli/SKILL.md) — standard "branch → push → `gh pr create`" recipe, including when fork vs. direct branch is appropriate.
 - [rebase-on-fresh-base-after-merge](skills/rebase-on-fresh-base-after-merge/SKILL.md) — after a PR lands, cut the next branch from a freshly-fetched `origin/<default>` instead of reusing the merged feature branch.
+- [check-git-log-before-refix](skills/check-git-log-before-refix/SKILL.md) — before "fixing" a recurring error, `git log --grep` the symptom and diff against `origin/<default>`; the fix may already exist and your branch / working tree is just stale.
 - [git-rev-parse-multi-ref-short](skills/git-rev-parse-multi-ref-short/SKILL.md) — `git rev-parse --short ref1 ref2 ...` fails with "Needed a single revision"; use a `for` loop or drop `--short`.
 - [workspace-path-constraints](skills/workspace-path-constraints/SKILL.md) — which tools only accept indexed workspace paths, and how to fall back for sibling repos.
 - [detect-tool-vendor-by-query](skills/detect-tool-vendor-by-query/SKILL.md) — identify a compiler / interpreter by running it (`--version`) and caching the answer, not by sniffing its filename — macOS `/usr/bin/gcc` is Apple Clang.
