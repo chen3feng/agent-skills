@@ -65,6 +65,7 @@ General engineering workflow:
 - [repo-org-migration-url-cleanup](skills/repo-org-migration-url-cleanup/SKILL.md) — after a GitHub repo is transferred to a new owner/org, sweep stale URLs everywhere but preserve historical narrative.
 - [stop-chasing-the-optimizer-reduce-instead](skills/stop-chasing-the-optimizer-reduce-instead/SKILL.md) — after two failed anti-optimization patches, stop adding `volatile` / `noinline` and reduce the repro instead.
 - [per-function-optimize-attribute-abi-mismatch](skills/per-function-optimize-attribute-abi-mismatch/SKILL.md) — `__attribute__((optimize("O0")))` on one function inside an `-O2` TU on GCC silently breaks the ABI and crashes on first call.
+- [ue-trefcountptr-member-needs-complete-type](skills/ue-trefcountptr-member-needs-complete-type/SKILL.md) — a `TRefCountPtr<T>` / `TSharedPtr<T>` member inside a UE class requires `T`'s full definition, not a forward decl; header parses fine but the first `MakeShared<Enclosing>()` fails at the smart pointer's destructor.
 
 Documentation work:
 
