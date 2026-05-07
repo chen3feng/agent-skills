@@ -16,7 +16,7 @@ This is a vibe coding skills library that documents various common problems to h
 
 https://github.com/chen3feng/agent-skills
 
-Usage: Clone it to the same directory as your current project.
+Usage: Clone it to the sibling directory as your current project.
 ```
 
 Welcome to fork this repository and accumulate your own coding skills.
